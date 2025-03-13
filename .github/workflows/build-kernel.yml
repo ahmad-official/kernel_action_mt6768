@@ -160,26 +160,7 @@ jobs:
             echo "FORMAT_MKBOOTING=$(echo `tools/unpack_bootimg.py --boot_img=boot-source.img --format mkbootimg`)" >> $GITHUB_ENV
             echo "HAVE_SOURCE_BOOT_IMAGE=true" >> $GITHUB_ENV
         fi
-
-    - name: Setup Configuration for Kernel
-      run: |
-        cd $GITHUB_WORKSPACE/kernel_workspace/android-kernel
-         if [ ${{ env.OLD_ANDROID_SUPPORT }} = true ]; then
-            git apply $GITHUB_WORKSPACE/patches/OLD_ANDROID_SUPPORT.patch
-            if grep -q "CONFIG_MMC_CRYPTO_LEGACY" arch/${{ env.KERNEL_ARCH }}/configs/${{ env.KERNEL_CONFIG }}; then
-                sed -i 's/# CONFIG_MMC_CRYPTO_LEGACY is not set/CONFIG_MMC_CRYPTO_LEGACY=y/g' arch/${{ env.KERNEL_ARCH }}/configs/${{ env.KERNEL_CONFIG }}
-                sed -i 's/CONFIG_MMC_CRYPTO_LEGACY=n/CONFIG_MMC_CRYPTO_LEGACY=y/g' arch/${{ env.KERNEL_ARCH }}/configs/${{ env.KERNEL_CONFIG }}
-            else
-                echo "CONFIG_MMC_CRYPTO_LEGACY=y" >> arch/${{ env.KERNEL_ARCH }}/configs/${{ env.KERNEL_CONFIG }}
-            fi
-        fi
-        if [ ${{ env.FIX_WIFI_SPEED }} = true ]; then
-            rm -rf drivers/misc/mediatek/connectivity
-            cd $GITHUB_WORKSPACE/kernel_workspace/android-kernel/drivers/misc/mediatek
-            git clone https://github.com/Jbub5/connectivity.git --depth=1
-            cd $GITHUB_WORKSPACE/kernel_workspace/android-kernel
-        fi
-
+        
     - name: Setup ccache
       if: env.ENABLE_CCACHE == 'true'
       uses: hendrikmuhs/ccache-action@v1.2
